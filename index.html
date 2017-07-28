@@ -478,36 +478,9 @@
 							var intercept = yBar - (xBar * slope);
 							var rSquare = Math.pow(ssXY, 2) / (ssXX * ssYY);
 							
-							return [slope, intercept, rSquare];
+							return [slope, intercept, rSquare, marker];
 						}
-						/*
-						function linearRegression(x, y){
-								console.log(x, y)
-								var lr = {};
-								var n = y.length;
-								console.log(n)
-								var sum_x = 0;
-								var sum_y = 0;
-								var sum_xy = 0;
-								var sum_xx = 0;
-								var sum_yy = 0;
-								
-								for (var i = 0; i < y.length; i++) {
-									
-									sum_x += x[i];
-									sum_y += y[i];
-									sum_xy += (x[i]*y[i]);
-									sum_xx += (x[i]*x[i]);
-									sum_yy += (y[i]*y[i]);
-								} 
-								
-								var slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
-								var intercept = (sum_y - slope * sum_x)/n;
-								var rSquare = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
-								console.log(slope, intercept, rSquare)
-								return [slope, intercept, rSquare];
-						}
-						*/
+
 						var xLabels = data.map(function (d) { return d['date']; });
 						
 						var xSeriesAll  = d3.range(0, 459);
@@ -567,13 +540,13 @@
 						var leSqCf23 = leastSquares(xSeries2008, ySeries32, '32');
 						
 						function getTrendData(xSeries, leastSquaresCoeff, index){
-								//console.log(leastSquaresCoeff)
+								//console.log(leastSquaresCoeff, index)
 								var x1 = xLabels[index];
 								var y1 = leastSquaresCoeff[0] + leastSquaresCoeff[1];
 								var x2 = xLabels[xLabels.length - 1];
 								var y2 = leastSquaresCoeff[0] * xSeries.length + leastSquaresCoeff[1];
-								var trendData = [[x1,y1,x2,y2,leastSquaresCoeff[2]]];
-								//console.log(leastSquaresCoeff, trendData)
+								var trendData = [[x1,y1,x2,y2,leastSquaresCoeff[2],leastSquaresCoeff[3] ]];
+								//console.log(leastSquaresCoeff)
 								return trendData
 						}
 						var trendData00 = getTrendData(xSeriesAll, leSqCf00,0)
@@ -656,10 +629,12 @@
 								.append("line")
 								.attr("class", "regtrendline")
 								.attr("x1", function(d) { return xScale(dateParser(d[0])); })
-								.attr("y1", function(d) { return yScale(d[1]); })
+								.attr("y1", function(d) { if (d[5] === '02'){ return yScale(d[3])+40}
+															else {return yScale(d[1]); }})
 								.attr("x2", function(d) { return xScale(dateParser(d[2])); })
-								.attr("y2", function(d) { return yScale(d[3]); })
-								.attr("text", function(d){ return d[4];})
+								.attr("y2", function(d) { if (d[5] === '02'){ return yScale(d[1])+40}
+															else {return yScale(d[3]); }})
+								.attr("text",function(d){ return d[4];})
 								.attr("stroke", "black")
 								.attr("stroke-width", 3)
 
