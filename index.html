@@ -1,0 +1,1161 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Are Americans Becoming Happier With Less?</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<script src="assets/js/d3.v3.js"></script>
+		<script src="assets/js/slider.js"></script>
+		
+		<!--<script src="assets/js/d3.min.js"></script>-->
+
+	</head>
+	<body>
+	<script type="text/javascript" src="./assets/js/finalDataSet2.js"></script>
+
+	
+	<!-- Sidebar -->
+		<section id="sidebar">
+			<div class="inner">
+				<nav>
+					<ul>
+						<li><a href="#intro">Essay</a></li>
+						<li><a href="#one">Overview</a></li>
+						<li><a href="#two">Trends</a></li>
+						<li><a href="#three">Groups</a></li>
+					</ul>
+				</nav>
+			</div>
+		</section>
+
+	<!-- Wrapper -->
+		<div id="wrapper">
+
+			<!-- Intro -->
+			<section id="intro" class="wrapper style1 fullscreen fade-up">
+				<div class="inner">
+					<h2> Week 11: Final Project – Create a Narrative Visualization </h2>
+					<h3> Question: Does Consumer Confidence and/or Labor Participation affect M2 velocity? </h3>
+					<p>I  am using an Interactive Narration Style for this project. The data used for this project comes from the <a href="https://alfred.stlouisfed.org/"> 
+						St. Louis Federal Reserve Archive of Economic Data</a>. </br>
+						I used the following data sets for this project.
+						<ol>
+							<li> University of Michigan: Consumer Sentiment</li>
+							<li> Civilian Labor Force Participation Rate</li>
+							<li> Civilian Unemployment Rate</li>
+							<li> Velocity of M2 Money Stock</li>
+						</ol>
+						For clarity: The velocity of money is the frequency at which one unit of currency is used to purchase domestically 
+						produced goods and services within a given time period.
+						I used an HTML5 template for the skeleton of this site provided by <a href="https://html5up.net/">https://html5up.net/.</a>
+						</p>
+						<p>
+						This visualization will show an overview of all the data, then individual trends of the data, and finally the final aggregation of the data.
+						In the first slide, the user can choose which time series they want to see via button clicks. In the Second Slide, the user has
+						the ability to display three different trend lines based on the last 2 major economic events, namely 9/11 and the 2008 Housing Bubble.
+						This is accomplished through button clicks as well.
+						
+						Lastly, the final chart shows the aggregation of the data, with an emphasis on the increased Consumer confidence 
+						despite very low Labor participation and Monetary velocity. 					
+						</p>
+					
+					<ul class="actions">
+						<li><a href="#one" class="button scrolly">Continue</a></li>
+					</ul>
+
+				</div>
+			</section>
+
+			<!-- One -->
+			<section id="one" class="wrapper style3 fade-up">
+				<div class="inner">
+					<p>
+					</p>
+
+						<div id="chart1_container">
+							<div id="chartButtons"></div>
+						</div>
+						<script>
+							var w = 1000;
+							var h = 600;
+							var margin = {
+								top: 60,
+								bottom: 100,
+								left: 80,
+								right: 40
+							};
+
+							var width = w - margin.left - margin.right;
+							var height = h - margin.top - margin.bottom;
+							var categories = [{key:'Con_Sent',value:"Consumer Sentiment"},
+										 {key:'Civ_Part', value:"Civilian Workforce Participation (in Millions)"},
+										 {key:'Unemp_Rate', value:"Unemployment Rate %"},
+										 {key:'M2_Vel', value:"M2 Velocity"}]
+
+							var svg = d3.select("#chart1_container")
+								.append("svg")
+									.attr("id", "line_chart")
+									.attr("width", w)
+									.attr("height", h);
+
+							var line_chart = svg.append("g")
+									.classed("chart", true)
+									.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+							
+
+							var dateParser = d3.time.format("%m/%Y").parse;
+
+							var x = d3.time.scale()
+								.domain(d3.extent(data, function(d){
+									var date = dateParser(d.date);
+									return date;
+								}))
+								.range([0,width]);
+							var y0 = d3.scale.linear()
+								.domain([d3.min(data, function(d){return d.Con_Sent - 5;}), d3.max(data, function(d){return d.Con_Sent + 5;
+								})])
+								.range([height,0]);
+							var y1 = d3.scale.linear()
+								.domain([d3.min(data, function(d){return d.Civ_Part - 1;}), d3.max(data, function(d){return d.Civ_Part + 1;
+								})])
+								.range([height,0]);
+							var y2 = d3.scale.linear()
+								.domain([d3.min(data, function(d){return d.Unemp_Rate - 1;}), d3.max(data, function(d){return d.Unemp_Rate + 1;
+								})])
+								.range([height,0]);
+							var y3 = d3.scale.linear()
+								.domain([d3.min(data, function(d){return d.M2_Vel - .1;}), d3.max(data, function(d){return d.M2_Vel + .1;
+								})])
+								.range([height,0]);
+								
+							d3.select("chart1_container").append("br");
+
+						var ConSentButton = d3.select("#chartButtons")
+						  .append("button")
+							.attr("class", "button")
+							.attr("type", "button")
+							.attr("value", "Consumer Sentiment")
+							.attr("id", "Con_Sent")
+							.style("font-size", "8")
+							.text("Consumer Sentiment")
+							.on("click", function(d){ 
+								plot(data, line_chart, "0",true)
+								});
+							
+						var CivPartButton = d3.select("#chartButtons")
+						  .append("button")
+							.attr("class", "button")
+							.attr("type", "button")
+							.attr("value", "Civilian Participation")
+							.attr("id", "Civ_Part")
+							.style("font-size", "8")
+							.text("Civilian Participation")
+							.on("click", function(d){ 
+								plot(data, line_chart, "1", true)
+								});
+							
+						var UnemRateButton = d3.select("#chartButtons")
+						  .append("button")
+							.attr("class", "button")
+							.attr("type", "button")
+							.attr("value", "Unemployment Rate")
+							.attr("id", "Unemp_Rate")
+							.style("font-size", "8")
+							.text("Unemployment Rate")
+							.on("click", function(d){ 
+								plot(data, line_chart, "2", true)
+								});
+
+						var M2VelButton = d3.select("#chartButtons")
+						  .append("button")
+							.attr("class", "button")
+							.attr("type", "button")
+							.attr("value", "M2 Velocity")
+							.attr("id", "M2_Vel")
+							.style("font-size", "8")
+							.text("M2 Velocity")
+							.on("click", function(d){ 
+								plot(data, line_chart, "3", true)
+								});
+						var BlankButton = d3.select("#chartButtons")
+						  .append("button")
+							.attr("class", "button")
+							.attr("type", "button")
+							.attr("id", "blank")
+							.style("visibility", "hidden")
+							.text("")
+							.on("click", function(d){ 
+								plot(data, line_chart, "0", false)
+								});
+
+						//console.log(data)
+						function plot(params, chart, index, redraw){
+							var data = []
+							//console.log(axis_List)
+							var key = categories[index].key
+							//console.log(key)
+							
+							params.forEach(function(element){
+								//console.log(element["date"], element[key])
+								data.push([element["date"], element[key]])
+							})
+							//console.log(data)	
+
+							var axis_List = [y0,y1,y2,y3];
+							var color_List = []
+							var xAxis = d3.svg.axis()
+										.scale(x)
+										.orient("bottom")
+										.ticks(d3.time.months,24)
+										.tickFormat(d3.time.format("%Y"));
+							var yAxis = d3.svg.axis()
+										.scale(axis_List[index])
+										.orient("left")
+										.ticks(15);
+							var yGridlines = d3.svg.axis()
+											.scale(axis_List[index])
+											.tickSize(-width,0,0)
+											.tickFormat("")
+											.ticks(15)
+											.orient("left");
+							var xGridlines = d3.svg.axis()
+											.scale(x)
+											.tickSize(-height,0,0)
+											.tickFormat("")
+											.ticks(d3.time.months,24);
+							
+							//gridlines
+							chart.append("g")
+								.classed("gridline", true)
+								.call(yGridlines)
+								.attr("transform", "translate(0,0)")
+							chart.append("g")
+								.classed("gridline", true)
+								.call(xGridlines)
+								.attr("transform", "translate(0," + height + ")")
+
+							// the x axis
+							chart.append("g")
+								.classed("x axis", true)
+								.attr("transform", "translate(0," + height + ")")
+								.call(xAxis)
+									.selectAll("text")
+										.classed("x-axis-label", true)
+										.style("text-anchor", "end")
+										.style("font-size", '14px')
+										.attr("dx", -8)
+										.attr("dy", 8)
+										.attr("transform", "translate(0,0) rotate(-45)");
+							//This is the y axis
+							chart.append("g")
+								.classed("y axis", true)
+								.attr("transform", "translate(0,0)")
+								.call(yAxis)
+							
+							//This is the x label
+							chart.select(".x.axis")
+								.append("text")
+								.attr("x", 0)
+								.attr("y", 0)
+								.style("text-anchor", "middle")
+								.style("font-size", '14px')
+								.attr("transform", "translate(" + width/2 + ",60)")
+								.text("Date");
+
+							//This is the y label
+							chart.select(".y.axis")
+								.append("text")
+								.attr("x", 0)
+								.attr("y", 0)
+								.style("text-anchor", "middle")
+								.style("font-size", '14px')
+								.attr("transform", "translate(-60," + height/2 + ") rotate(-90)")
+								.text(categories[index].value);
+
+							chart.selectAll(".trendline")
+								.data([data])
+								.enter()
+									.append("path")
+									.classed("trendline", true);
+							chart.append("text")
+									.attr("x", (width / 2))             
+									.attr("y", 0 - (margin.top / 2))
+									.attr("text-anchor", "middle")  
+									.style("font-size", "14px") 
+									.style("text-decoration", "underline")  
+									.text(categories[index].value);
+							//update
+							var line = d3.svg.line()
+										.x(function(d){
+											var date = dateParser(d[0]);
+											return x(date);
+										})
+										.y(function(d){
+											return axis_List[index](d[1]);
+										})
+										.interpolate("basis");
+
+							chart.selectAll(".trendline")
+								.transition()
+								.attr("d", function(d){
+									return line(d);
+								})
+							
+							//exit()
+							chart.selectAll(".trendline")
+								.data([data])
+								.exit()
+								.remove();
+
+							if (redraw === true){
+								
+								chart.selectAll('text').remove()
+								chart.selectAll(".gridline").remove()
+								chart.selectAll(".tick").remove()
+								
+								chart.append("g")
+									.classed("gridline", true)
+									.call(yGridlines)
+									.attr("transform", "translate(0,0)")
+								chart.append("g")
+									.classed("gridline", true)
+									.call(xGridlines)
+									.attr("transform", "translate(0," + height + ")")
+
+								// the x axis
+								chart.append("g")
+									.classed("x axis", true)
+									.attr("transform", "translate(0," + height + ")")
+									.call(xAxis)
+										.selectAll("text")
+											.classed("x-axis-label", true)
+											.style("text-anchor", "end")
+											.style("font-size", '14px')
+											.attr("dx", -8)
+											.attr("dy", 8)
+											.attr("transform", "translate(0,0) rotate(-45)");
+								//This is the y axis
+								chart.append("g")
+									.classed("y axis", true)
+									.attr("transform", "translate(0,0)")
+									.call(yAxis)
+								
+								//This is the x label
+								chart.select(".x.axis")
+									.append("text")
+									.attr("x", 0)
+									.attr("y", 0)
+									.style("text-anchor", "middle")
+									.style("font-size", '14px')
+									.attr("transform", "translate(" + width/2 + ",60)")
+									.text("Date");
+
+								//This is the y label
+								chart.select(".y.axis")
+									.append("text")
+									.attr("x", 0)
+									.attr("y", 0)
+									.style("text-anchor", "middle")
+									.style("font-size", '14px')
+									.attr("transform", "translate(-60," + height/2 + ") rotate(-90)")
+									.text(categories[index].value);
+									
+								chart.append("text")
+									.attr("x", (width / 2))             
+									.attr("y", 0 - (margin.top / 2))
+									.attr("text-anchor", "middle")  
+									.style("font-size", "14px") 
+									.style("text-decoration", "underline")  
+									.text(categories[index].value);
+
+								//console.log("Redraw")
+							}
+
+						}
+						// Initial Draw
+						document.getElementById('blank').click()
+					</script>					
+					<ul class="actions">
+						<li><a href="#two" class="button scrolly">Trends</a></li>
+					</ul>
+				</div>
+
+			</section>
+			<!-- Two -->
+			<section id="two" class="wrapper style2 spotlights">
+			<div class="inner">
+				<h4> These charts allow the user to dynamically create trend lines based off the button clicks.</h4>
+				<div id="trendButtons">
+				</div>
+				<script>
+					var trendAll = d3.select("#trendButtons")
+					  .append("button")
+						.attr("class", "button")
+						.attr("type", "button")
+						.attr("value", "All Data")
+						.attr("id", "all")
+						.style("font-size", "8")
+						.text("All Data")
+						.on("click", function(d){ 
+							trendplot(con_sent,   trendData00, x1, con_sent_y_fixed)
+							trendplot(civ_part,   trendData01, x1, civ_part_y_fixed)
+							trendplot(unemp_rate, trendData02, x1, unem_rate_y_fixed)
+							trendplot(m2_vel,     trendData03, x1, m2_vel_y_fixed)
+							});
+					var trend2001 = d3.select("#trendButtons")
+					  .append("button")
+						.attr("class", "button")
+						.attr("type", "button")
+						.attr("value", "2001")
+						.attr("id", "all")
+						.style("font-size", "8")
+						.text("Since 2001")
+						.on("click", function(d){ 
+							trendplot(con_sent,   trendData10, x1, con_sent_y_fixed)
+							trendplot(civ_part,   trendData11, x1, civ_part_y_fixed)
+							trendplot(unemp_rate, trendData12, x1, unem_rate_y_fixed)
+							trendplot(m2_vel,     trendData13, x1, m2_vel_y_fixed)
+							});
+					var trend2011 = d3.select("#trendButtons")
+					  .append("button")
+						.attr("class", "button")
+						.attr("type", "button")
+						.attr("value", "2008")
+						.attr("id", "all")
+						.style("font-size", "8")
+						.text("Since 2008")
+						.on("click", function(d){ 
+							trendplot(con_sent,   trendData20, x1, con_sent_y_fixed)
+							trendplot(civ_part,   trendData21, x1, civ_part_y_fixed)
+							trendplot(unemp_rate, trendData22, x1, unem_rate_y_fixed)
+							trendplot(m2_vel,     trendData23, x1, m2_vel_y_fixed)
+							});
+					var trendClear = d3.select("#trendButtons")
+					  .append("button")
+						.attr("class", "button")
+						.attr("type", "button")
+						.attr("value", "clear")
+						.attr("id", "all")
+						.style("font-size", "8")
+						.text("Clear Trend")
+						.on("click", function(d){ clearTrends(con_sent)
+												clearTrends(civ_part)
+												clearTrends(unemp_rate)
+												clearTrends(m2_vel)
+						});							
+				</script>
+			</div>
+				<section id="onea">
+					<div id="onea_chart" class="small_chart">
+
+					<script>
+						// returns slope, intercept and r-square of the line
+						// from: http://bl.ocks.org/benvandyke/8459843
+						
+						function leastSquares(xSeries, ySeries, marker) {
+							//console.log(marker, xSeries.length, ySeries.length)
+							var reduceSumFunc = function(prev, cur) { return prev + cur; };
+							
+							var xBar = xSeries.reduce(reduceSumFunc) * 1.0 / xSeries.length;
+							var yBar = ySeries.reduce(reduceSumFunc) * 1.0 / ySeries.length;
+
+							var ssXX = xSeries.map(function(d) { return Math.pow(d - xBar, 2); })
+								.reduce(reduceSumFunc);
+							
+							var ssYY = ySeries.map(function(d) { return Math.pow(d - yBar, 2); })
+								.reduce(reduceSumFunc);
+								
+							var ssXY = xSeries.map(function(d, i) { return (d - xBar) * (ySeries[i] - yBar); })
+								.reduce(reduceSumFunc);
+								
+							var slope = ssXY / ssXX;
+							var intercept = yBar - (xBar * slope);
+							var rSquare = Math.pow(ssXY, 2) / (ssXX * ssYY);
+							
+							return [slope, intercept, rSquare];
+						}
+						/*
+						function linearRegression(x, y){
+								console.log(x, y)
+								var lr = {};
+								var n = y.length;
+								console.log(n)
+								var sum_x = 0;
+								var sum_y = 0;
+								var sum_xy = 0;
+								var sum_xx = 0;
+								var sum_yy = 0;
+								
+								for (var i = 0; i < y.length; i++) {
+									
+									sum_x += x[i];
+									sum_y += y[i];
+									sum_xy += (x[i]*y[i]);
+									sum_xx += (x[i]*x[i]);
+									sum_yy += (y[i]*y[i]);
+								} 
+								
+								var slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
+								var intercept = (sum_y - slope * sum_x)/n;
+								var rSquare = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
+								console.log(slope, intercept, rSquare)
+								return [slope, intercept, rSquare];
+						}
+						*/
+						var xLabels = data.map(function (d) { return d['date']; });
+						
+						var xSeriesAll  = d3.range(0, 459);
+						var xSeries2001 = d3.range(0, 185);
+						var xSeries2008 = d3.range(0, 104);
+						
+						var ySeries00 = data.map(function(d,i) { return d.Con_Sent; });
+						var ySeries10 = data.map(function(d,i) { return d.Civ_Part; });
+						var ySeries20 = data.map(function(d,i) { return d.Unemp_Rate; });
+						var ySeries30 = data.map(function(d,i) { return d.M2_Vel; });
+						
+						var ySeries01 = []
+						for (var i = 0; i < data.length; i++){
+							if (i > 273 ){ySeries01.push(data[i].Con_Sent)};
+							}
+						var ySeries11 = []
+						for (var i = 0; i < data.length; i++){
+							if (i > 273 ){ySeries11.push(data[i].Civ_Part)};
+							}
+						var ySeries21 = []
+						for (var i = 0; i < data.length; i++){
+							if (i > 273 ){ySeries21.push(data[i].Unemp_Rate)};
+							}
+						var ySeries31 = []
+						for (var i = 0; i < data.length; i++){
+							if (i > 273 ){ySeries31.push(data[i].M2_Vel)};
+							}
+
+						var ySeries02 = []
+						for (var i = 0; i < data.length; i++){
+							if (i > 354 ){ySeries02.push(data[i].Con_Sent)};
+							}
+						var ySeries12 = []
+						for (var i = 0; i < data.length; i++){
+							if (i > 354 ){ySeries12.push(data[i].Civ_Part)};
+							}
+						var ySeries22 = []
+						for (var i = 0; i < data.length; i++){
+							if (i > 354 ){ySeries22.push(data[i].Unemp_Rate)};
+							}
+						var ySeries32 = []
+						for (var i = 0; i < data.length; i++){
+							if (i > 354 ){ySeries32.push(data[i].M2_Vel)};
+							}
+						
+						var leSqCf00 = leastSquares(xSeriesAll,  ySeries00, '00');
+						var leSqCf10 = leastSquares(xSeries2001, ySeries01, '01');
+						var leSqCf20 = leastSquares(xSeries2008, ySeries02, '02');
+						var leSqCf01 = leastSquares(xSeriesAll,  ySeries10, '10');
+						var leSqCf11 = leastSquares(xSeries2001, ySeries11, '11');
+						var leSqCf21 = leastSquares(xSeries2008, ySeries12, '12');
+						var leSqCf02 = leastSquares(xSeriesAll,  ySeries20, '20');
+						var leSqCf12 = leastSquares(xSeries2001, ySeries21, '21');
+						var leSqCf22 = leastSquares(xSeries2008, ySeries22, '22');
+						var leSqCf03 = leastSquares(xSeriesAll,  ySeries30, '30');
+						var leSqCf13 = leastSquares(xSeries2001, ySeries31, '31');
+						var leSqCf23 = leastSquares(xSeries2008, ySeries32, '32');
+						
+						function getTrendData(xSeries, leastSquaresCoeff, index){
+								//console.log(leastSquaresCoeff)
+								var x1 = xLabels[index];
+								var y1 = leastSquaresCoeff[0] + leastSquaresCoeff[1];
+								var x2 = xLabels[xLabels.length - 1];
+								var y2 = leastSquaresCoeff[0] * xSeries.length + leastSquaresCoeff[1];
+								var trendData = [[x1,y1,x2,y2,leastSquaresCoeff[2]]];
+								//console.log(leastSquaresCoeff, trendData)
+								return trendData
+						}
+						var trendData00 = getTrendData(xSeriesAll, leSqCf00,0)
+						var trendData10 = getTrendData(xSeries2001, leSqCf10,273)
+						var trendData20 = getTrendData(xSeries2008, leSqCf20,354)
+						var trendData01 = getTrendData(xSeriesAll, leSqCf01,0)
+						var trendData11 = getTrendData(xSeries2001, leSqCf11,273)
+						var trendData21 = getTrendData(xSeries2008, leSqCf21,354)
+						var trendData02 = getTrendData(xSeriesAll, leSqCf02,0)
+						var trendData12 = getTrendData(xSeries2001, leSqCf12,273)
+						var trendData22 = getTrendData(xSeries2008, leSqCf22,354)
+						var trendData03 = getTrendData(xSeriesAll, leSqCf03,0)
+						var trendData13 = getTrendData(xSeries2001, leSqCf13,273)
+						var trendData23 = getTrendData(xSeries2008, leSqCf23,354)
+						//console.log(trendData20)
+
+						var margin1 = {top: 50,bottom: 80,left:80,right: 10};
+						var w1 = 800;
+						var h1 = 400;
+						var width1 = w1 - margin1.left - margin1.right;
+						var height1 = h1 - margin1.top - margin1.bottom;
+						var con_sent_y_fixed = d3.scale.linear()
+							.domain([46.7, 117])
+							.range([0,height1]);
+						var civ_part_y_fixed = d3.scale.linear()
+							.domain([61.4, 68.3])
+							.range([height1,0]);
+						var unem_rate_y_fixed = d3.scale.linear()
+							.domain([2.8, 11.8])
+							.range([height1,0]);
+						var m2_vel_y_fixed = d3.scale.linear()
+							.domain([1.329, 2.31])
+							.range([height1,0]);
+						var x1 = d3.time.scale()
+							.domain(d3.extent(data, function(d){
+								var date = dateParser(d.date);
+								return date;
+							}))
+							.range([0,width1]);
+						var y01 = d3.scale.linear()
+							.domain([d3.min(data, function(d){return d.Con_Sent - 5;}), d3.max(data, function(d){return d.Con_Sent + 5;
+							})])
+							.range([height1,0]);
+						var y11 = d3.scale.linear()
+							.domain([d3.min(data, function(d){return d.Civ_Part - 1;}), d3.max(data, function(d){return d.Civ_Part + 1;
+							})])
+							.range([height1,0]);
+						var y21 = d3.scale.linear()
+							.domain([d3.min(data, function(d){return d.Unemp_Rate - 1;}), d3.max(data, function(d){return d.Unemp_Rate + 1;
+							})])
+							.range([height1,0]);
+						var y31 = d3.scale.linear()
+							.domain([d3.min(data, function(d){return d.M2_Vel - .1;}), d3.max(data, function(d){return d.M2_Vel + .1;
+							})])
+							.range([height1,0]);
+							
+						
+						var axis_List = [y01,y11,y21,y31];									
+						var svg1 = d3.select("#onea_chart")
+								.append("svg")
+									.attr("id", "onea_chart")
+									.attr("width", w1)
+									.attr("height", h1);
+
+						var line_chart1 = svg1.append("g")
+									.classed("chart", true)
+									.attr("id", "con_sent")
+									.attr("transform", "translate(" + margin1.left + "," + margin1.top + ")");
+						
+
+						function trendplot (chart, trendData, xScale, yScale){
+							//console.log(chart)
+							d3.select(chart).select(".regtrendline").remove();
+						
+							var regtrend = d3.select(chart)
+								.selectAll("regtrendline")
+								.data(trendData);
+
+							regtrend.enter()
+								.append("line")
+								.attr("class", "regtrendline")
+								.attr("x1", function(d) { return xScale(dateParser(d[0])); })
+								.attr("y1", function(d) { return yScale(d[1]); })
+								.attr("x2", function(d) { return xScale(dateParser(d[2])); })
+								.attr("y2", function(d) { return yScale(d[3]); })
+								.attr("text", function(d){ return d[4];})
+								.attr("stroke", "black")
+								.attr("stroke-width", 3)
+
+						}
+						function clearTrends (chart){
+							//console.log(chart)
+							d3.select(chart).select(".regtrendline").remove();
+							}
+							
+						function plot_small(params, chart, index, redraw){
+							var data = []
+							//console.log(axis_List)
+							var key = categories[index].key
+							//console.log(key)
+							
+							params.forEach(function(element){
+								//console.log(element["date"], element[key])
+								data.push([element["date"], element[key]])
+							})
+							//console.log(data)	
+
+							var axis_List = [y01,y11,y21,y31];
+							var color_List = []
+							var x1Axis = d3.svg.axis()
+										.scale(x1)
+										.orient("bottom")
+										.ticks(d3.time.months,24)
+										.tickFormat(d3.time.format("%Y"));
+							var y1Axis = d3.svg.axis()
+										.scale(axis_List[index])
+										.orient("left")
+										.ticks(15);
+							var y1Gridlines = d3.svg.axis()
+											.scale(axis_List[index])
+											.tickSize(-width,0,0)
+											.tickFormat("")
+											.ticks(15)
+											.orient("left");
+							var x1Gridlines = d3.svg.axis()
+											.scale(x1)
+											.tickSize(-height1,0,0)
+											.tickFormat("")
+											.ticks(d3.time.months,24);
+							
+							//gridlines
+							chart.append("g")
+								.classed("gridline1", true)
+								.call(y1Gridlines)
+								.attr("transform", "translate(0,0)")
+							chart.append("g")
+								.classed("gridline1", true)
+								.call(x1Gridlines)
+								.attr("transform", "translate(0," + height + ")")
+
+							// the x axis
+							chart.append("g")
+								.classed("x axis", true)
+								.attr("transform", "translate(0," + height1 + ")")
+								.call(x1Axis)
+									.selectAll("text")
+										.classed("x-axis-label", true)
+										.style("text-anchor", "end")
+										.style("fill", "#FFFFFF")
+										.attr("dx", -8)
+										.attr("dy", 8)
+										.attr("transform", "translate(0,0) rotate(-45)");
+							//This is the y axis
+							chart.append("g")
+								.classed("y axis", true)
+								.attr("transform", "translate(0,0)")
+								.call(y1Axis)
+							
+							//This is the x label
+							chart.select(".x.axis")
+								.append("text")
+								.attr("x", 0)
+								.attr("y", 0)
+								.style("text-anchor", "middle")
+								.attr("transform", "translate(" + width1/2 + ",60)")
+								.text("Date")
+								.style("fill", "#FFFFFF");
+
+							//This is the y label
+							chart.select(".y.axis")
+								.append("text")
+								.attr("x", 0)
+								.attr("y", 0)
+								.style("text-anchor", "middle")
+								.style("fill", "#FFFFFF")
+								.attr("transform", "translate(-10," + height1/2 + ") rotate(-90)")
+								.text(categories[index].value);
+							//console.log(data)
+							
+							chart.selectAll(".point")
+								.data(data)
+								.enter()
+									.append("circle")
+									.classed("point", true)
+									.attr("r", 4);
+							
+							chart.selectAll(".point")
+								.attr("cx", function(d){
+									var date = dateParser(d[0]);
+									return x1(date);
+								})
+								.attr("cy", function(d){
+									return axis_List[index](d[1]);
+								})											
+
+							
+							//update
+							var line1 = d3.svg.line()
+										.x(function(d){
+											var date = dateParser(d[0]);
+											return x1(date);
+										})
+										.y(function(d){
+											return axis_List[index](d[1]);
+										})
+
+				
+							chart.selectAll('text').remove()
+							chart.selectAll(".gridline1").remove()
+							chart.selectAll(".tick").remove()
+							
+							chart.append("g")
+								.classed("gridline1", true)
+								.call(y1Gridlines)
+								.attr("transform", "translate(0,0)")
+							chart.append("g")
+								.classed("gridline1", true)
+								.call(x1Gridlines)
+								.attr("transform", "translate(0," + height1 + ")")
+
+							// the x axis
+							chart.append("g")
+								.classed("x axis", true)
+								.attr("transform", "translate(0," + height1 + ")")
+								.call(x1Axis)
+									.selectAll("text")
+										.classed("x-axis-label", true)
+										.style("text-anchor", "end")
+										.style("font-size", "10px")
+										.style("fill", "#FFFFFF")													
+										.attr("dx", -8)
+										.attr("dy", 8)
+										.attr("transform", "translate(0,0) rotate(-45)");
+							//This is the y axis
+							chart.append("g")
+								.classed("y axis", true)
+								.attr("transform", "translate(0,0)")
+								.style("font-size", "10px")
+								.style("fill", "#FFFFFF")
+								.call(y1Axis)
+							
+							//This is the x label
+							chart.select(".x.axis")
+								.append("text")
+								.attr("x", 0)
+								.attr("y", 0)
+								.style("text-anchor", "middle")
+								.style("font-size", "12px")
+								.style("fill", "#FFFFFF")
+								.attr("transform", "translate(" + width1/2 + ",60)")
+								.text("Date");
+
+							//This is the y label
+							chart.select(".y.axis")
+								.append("text")
+								.attr("x", 0)
+								.attr("y", 0)
+								.style("text-anchor", "middle")
+								.style("font-size", "12px")
+								.style("fill", "#FFFFFF")											
+								.attr("transform", "translate(-40," + height1/2 + ") rotate(-90)")
+								.text(categories[index].value);
+
+
+							chart.selectAll(".trendline1")
+								.data([data])
+								.enter()
+									.append("path")
+									.classed("trendline1", true)
+
+							chart.selectAll(".trendline1")
+								.attr("d", function(d){
+									return line1(d);
+								})							
+							//exit()
+							chart.selectAll(".trendline1")
+								.data([data])
+								.exit()
+								.remove();
+							chart.selectAll(".point")
+								.data(data)
+								.exit()
+								.remove();
+							//}
+
+						}
+						plot_small(data, line_chart1, "0", true)
+						//console.log(categories)
+					</script>
+				</div>
+				<div class="content">
+						<div class="inner">
+							
+							<h3>Consumer Sentiment</h3>
+							<p>This timeline shows the Consumer Sentiment over the past 40 years.
+								We see a sharp decline in Confidence in 1990, 2001, 2007, and 2011.											
+								These are significant markers for the future trends.</p>
+						</div>
+					</div>
+				</section>
+				<section id="oneb">
+					<div id="oneb_chart"></div>
+					<script>
+						var svg2 = d3.select("#oneb_chart")
+								.append("svg")
+									.attr("id", "oneb_chart")
+									.attr("width", w1)
+									.attr("height", h1);
+						var line_chart2 = svg2.append("g")
+									.classed("chart", true)
+									.attr("id", "civ_part")
+									.attr("transform", "translate(" + margin1.left + "," + margin1.top + ")");
+						plot_small(data, line_chart2, "1", true)
+					</script>
+					<div class="content">
+						<div class="inner">
+							<h3>Civilian Workforce Participation</h3>
+							<p>With the Tech Bubble Burst in 2001 we see a trending decline in Labor Participation. Although there is 
+								a slight push before the Housing bubble in 2008, the rate continues to drop steadily</p>
+						</div>
+					</div>
+				</section>
+				<section id="onec">
+					<div id="onec_chart"></div>
+					<script>
+						var svg3 = d3.select("#onec_chart")
+								.append("svg")
+									.attr("id", "onec_chart")
+									.attr("width", w1)
+									.attr("height", h1);
+						var line_chart3 = svg3.append("g")
+									.classed("chart", true)
+									.attr("id", "unemp_rate")
+									.attr("transform", "translate(" + margin1.left + "," + margin1.top + ")");
+						plot_small(data, line_chart3, "2", true)
+					</script>
+					<div class="content">
+						<div class="inner">
+							<h3>Unemployment Rate</h3>
+							<p> Here you can see how the Unemployment rate appears to be opposite of Consumer Confidence </p>
+						</div>
+					</div>
+				</section>
+				<section id="oned">
+					<div id="oned_chart"></div>
+					<script>
+						var svg4 = d3.select("#oned_chart")
+								.append("svg")
+									.attr("id", "oned_chart")
+									.attr("width", w1)
+									.attr("height", h1);
+						var line_chart4 = svg4.append("g")
+									.classed("chart", true)
+									.attr("id", "m2_vel")
+									.attr("transform", "translate(" + margin1.left + "," + margin1.top + ")");
+						plot_small(data, line_chart4, "3", true)
+					</script>
+					<div class="content">
+						<div class="inner">
+							<h3>M2 Velocity</h3>
+							<p>Here we see a strong drop in spending in 2001 with an increase up until the 2008 crash.
+								After that, monetary spending continues to drop with sharp declines in late 2007 and mid 2011.</p>
+						</div>
+					</div>
+				</section>				
+			</section>
+
+			<!-- Three -->
+			<section id="three" class="wrapper style1 fade-up">
+				<div class="inner">
+					<h2>Money Spent Based on Participation</h2>
+					<p>This Chart shows How M2 Velocity relates to Civilian Labor Participation. Size of the Points is scaled by Consumer Confidence.
+						The user can mouse over the points for more information namely the date and Consumer Confidence value for that date. 
+						The fact that the last 7 years 2010-present are strong Consumer Confidence values, but the M2 velocity and Labor Participation 
+						are at very low levels over the past 40 years could translate to the American people being happy just to work, or it could mean 
+						Americans are not buying as many things as they used to. The aggressive spending of the 1990's and 2000's is illustrated by the
+						strong values in the upper right of the graph. 
+					</p>
+
+					<div class="features" id="chart2_container">
+					<script>
+
+						var scatter = d3.select("#chart2_container")
+							.append("svg")
+								.attr("id", "scatter_chart")
+								.attr("width", w)
+								.attr("height", h);
+						
+						var scatter_chart = scatter.append("g")
+								.classed("chart", true)
+								.attr("id", "scatter")
+								.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+						
+						var x3 = d3.scale.linear()
+							.domain([d3.min(data, function(d){return d.Civ_Part - .5 ;}), d3.max(data, function(d){return d.Civ_Part + .5;
+							})])
+							.range([0, width]);
+							//console.log(width)
+								
+						var y3 = d3.scale.linear()
+							.domain([d3.min(data, function(d){return d.M2_Vel - .02;}), d3.max(data, function(d){return d.M2_Vel + .02;
+							})])
+							.range([height, 0]);
+							//console.log(height)
+							
+						var o = d3.scale.quantize()
+								.domain([d3.min(data, function(d){return d.Con_Sent;}), d3.max(data, function(d){return d.Con_Sent;
+							})])
+								//.domain(data.map(function (d) { return d.Con_Sent; }))
+								.range([2,6,10,14,18]);
+								
+						var color = d3.scale.ordinal()
+							.domain([1970, 1980, 1990, 2000, 2010])
+							.range(["#e2e970", "#ffebcc", "#ffb84d","#40a5f2","#cce9ff"]);
+							
+						var color_sheet = {1970:"#e2e970", 1980:"#ffebcc",1990:"#ffb84d",2000:"#40a5f2",2010:"#cce9ff"}
+						
+						var year_color = function(d){
+							
+							var year = dateParser(d).getFullYear()
+							retval = year - year%10
+							//console.log(color_sheet[retval])
+							return color_sheet[retval]
+						}
+						var decade = function(d){
+							
+							var year = dateParser(d).getFullYear()
+							retval = year - year%10
+							//console.log(color_sheet[retval])
+							return retval
+						}								
+						var xAxis1 = d3.svg.axis()
+							.scale(x3)
+							.orient("bottom");
+
+						var yAxis1 = d3.svg.axis()
+							.scale(y3)
+							.orient("left");
+
+						//var div = d3.select("body").append("div")	
+						//	.attr("class", "tooltip")				
+						//	.style("opacity", 0);
+						
+						scatter_chart.append("g")
+							.classed("x axis", true)
+							.attr("transform", "translate(0," + height + ")")
+							.call(xAxis1)
+								.selectAll("text")
+									.classed("x-axis-label", true)
+									.style("text-anchor", "end")
+									.style("font-size", '14px')
+									.attr("dx", -8)
+									.attr("dy", 8)
+									.attr("transform", "translate(0,0) rotate(-45)");
+							
+						scatter_chart.append("g")
+							.classed("y axis", true)
+							.attr("transform", "translate(0,0)")									
+							.call(yAxis1)
+								.selectAll("text")
+									.classed("y-axis-label", true)
+									.style("text-anchor", "end")
+									.style("font-size", '14px')
+									.attr("dx", -8)
+									.attr("dy", 8)
+									.attr("transform", "translate(0,0)");
+						//This is the x label
+						scatter_chart.select(".x.axis")
+							.append("text")
+							.attr("x", 0)
+							.attr("y", 0)
+							.style("text-anchor", "middle")
+							.attr("transform", "translate(" + width/2 + ",60)")
+							.text("Civilian Participation")
+
+						//This is the y label
+						scatter_chart.select(".y.axis")
+							.append("text")
+							.attr("x", 0)
+							.attr("y", 0)
+							.style("text-anchor", "middle")
+							.attr("transform", "translate(-50," + height/2 + ") rotate(-90)")
+							.text("M2 Velocity");
+						//console.log(data)
+						
+					  function mouseOverFunct(d, i) {
+
+							// Change Size
+							d3.select(this)
+								.attr("r", function(d) { return o(d.Con_Sent) * 2;})
+
+							// Label Location
+							scatter.append("text")
+							.attr("id", "t" + d.x + "-" + d.y + "-" + i)  // Create an id for text so we can select it on mouseout
+							.attr("x", function() { return (x3(d.Civ_Part) + 100);})
+							.attr("y", function() { return (y3(d.M2_Vel) + 60); })
+							.html(function() { return (d.Con_Sent + "  " + d.date); }) // Value of the text
+							.attr("font-size", "12px")
+							.attr("font-style", "bold")
+
+						  }
+					  function mouseOutFunct(d, i) {
+							// Return Size to original
+							d3.select(this).attr({
+							  r: function(d, i) { return o(d.Con_Sent);}
+							});
+
+							// Select text by id and then remove
+							d3.select("#t" + d.x + "-" + d.y + "-" + i).remove();  // Remove text location
+						  }
+						  
+						scatter_chart.selectAll(".dot")
+							.data(data)
+							.enter()
+								.append("circle")
+								.classed("dot", true)
+								.attr("cx", function(d) { return x3(d.Civ_Part);})
+								.attr("cy",function(d) { return y3(d.M2_Vel);})
+								.attr("r", function(d) { return o(d.Con_Sent);})
+								.style("fill", function(d) { return color(decade(d.date));})
+								.style("fill-opacity", 10)
+								.on("mouseover", mouseOverFunct)
+								.on("mouseout", mouseOutFunct)
+
+						var legend = d3.select('#scatter')
+							.append("g")
+							.selectAll("g")
+							.data(color.domain())
+							.enter()
+								.append("g")
+								.classed("legend", true)
+								.attr('transform', function(d, i) {
+									var height = 2;
+									var x = 10;
+									var y = i * height;
+									return 'translate(' + x + ',' + y + ')';
+								})
+								.attr("height", 100)
+								.attr("width", 100)
+								.style("font-size","12px")
+							
+						//console.log(color_sheet)
+						
+						legend.append("rect")
+							.attr("x", 5)
+							.attr("y", function(d, i){ return i * 10;})
+							.attr("width", 10)
+							.attr("height", 10)
+							.style("fill",  function(d) { return color(d);})
+
+								
+						legend.append("text")
+						  .attr("x", 20)
+						  .attr("y", function(d, i){ return i *  10 + 9;})
+						  .text(function(d) {return (d + "'s");})
+						  
+
+						scatter_chart.selectAll(".dot")
+							.data(data)
+							.exit()
+							.remove();
+
+					</script>
+					</div>
+					<ul class="actions">
+						<li><a href="#intro" class="button scrolly">Home</a></li>
+					</ul>
+					</div>
+					
+				</section>
+
+		</div>
+
+	<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/d3.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/skel.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
